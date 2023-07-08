@@ -100,8 +100,8 @@ PIEDRA = np.array([False, False, False, False, False])
 PAPEL = np.array([True, True, True, True, True])
 TIJERAS = np.array([False, True, True, False, False])
 
-# REGLAS PIEDRA, PAPEL, TIJERAS (0, 1, 2)
-WIN_GAME = ["02", "10", "21"]
+#------------------------------------ CONDICIONES DE VICTORIA SEGUN LA ELECCION, SIENDO 0 PIEDRA, 1 PAPEL Y 2 TIJERA -----------------------------#
+WIN_GAME = ["01", "12", "20"]
 
 pc_option = False # Si la pc eligió o no
 detect_hand = True
@@ -118,9 +118,9 @@ count_restart = 0
 # Imagenes a mostrar
 image1 = cv2.imread("1.jpg")
 image2 = cv2.imread("2.jpg")
-image_winner = cv2.imread("3.jpg")
-image_tie = cv2.imread("4.jpg")
-image_loser = cv2.imread("5.jpg")
+imagen_victoria = cv2.imread("3.jpg")
+imagen_empate = cv2.imread("4.jpg")
+imagen_derrota = cv2.imread("5.jpg")
 
 # Image to concat
 imAux = image1
@@ -149,14 +149,15 @@ with mp_hands.Hands(
                     if not False in (fingers == TO_ACTIVATE) and pc_option == False:
                          if count_like >= THRESHOLD:
                               
-                              #Con el modulo random la PC selecciona el valor al azar 0, 1 o 2
+          #--------------------------------------------- ACA SELECCIONA LA PC ----------------------------------------------------#
+                              #Con el modulo random la PC selecciona el valor al azar 0, 1 o 2, siendo estos piedra, papel o tijera
                               pc = random.randint(0, 2) 
-                              print("pc:", pc)
+                              print("Eleccion:", pc)
                               pc_option = True
-                              #Cuando es detectado el comando en pc_option y deja de ser False, pasa a la imagen2
                               imAux = image2
                          count_like += 1
                     
+          #------------------------------------------------------ CONFIGURACION DE LA MANO DEL JUGADOR -----------------------------------------#
                     if pc_option == True:
                          if not False in (fingers == PIEDRA):
                               if count_piedra >= THRESHOLD:
@@ -170,15 +171,19 @@ with mp_hands.Hands(
                               if count_tijeras >= THRESHOLD:
                                    player = 2
                               count_tijeras += 1
+
+          #-------------------------------------- CONDICIONES DE VICTORIA DEL JUEGO ------------------------------------------------------------#
           if player is not None:
                detect_hand = False
                if pc == player:
-                    imAux = image_tie
+                    imAux = imagen_empate
                else:
                     if (str(player) + str(pc)) in WIN_GAME:
-                         imAux = image_winner
+                         imAux = imagen_victoria
                     else:
-                         imAux = image_loser
+                         imAux = imagen_derrota
+
+          #----------------------------------- PONEMOS EN LOOP NUEVAMENTE EL JUEGO ----------------------------------------------------------------#
                count_restart += 1
                if count_restart > THRESHOLD_RESTART:
                     pc_option = False
@@ -200,5 +205,6 @@ with mp_hands.Hands(
           
           if cv2.waitKey(1) & 0xFF == 27:
                break
+
 cap.release()
 cv2.destroyAllWindows()
